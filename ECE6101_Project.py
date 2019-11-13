@@ -406,95 +406,7 @@ def M_Ek_1(K):
 
 # return expected number of customer in M/Ek/1 queque with different arrival rate
 def EN_M_Ek_1(Lambda, K=40):
-    simulation_time_in_seconds = 100  # simulation time in seconds
-    Mu = 6     # service rate (/second)
-    rho = Lambda/Mu   # utilization 
-    queue = Queue() #  Queue
-    number_customer = int(Poisson(Lambda)*60*60) # total number of customers arrived within in one hour
-    
-   
-    inter_arrival_time = [] # inter arrival time of each customer 
-    for i in range(number_customer):
-        t = (Exponential(1/Lambda))
-        if i == 0:
-            inter_arrival_time.append(0)
-        else:
-            inter_arrival_time.append(t)
-    
-    
-    arrival_time = [] #arrival time of each customer
-    for i in range(number_customer):
-        
-        if i == 0:
-            arrival_time.append(0.0)
-        else:
-            arrival_time.append(arrival_time[i-1]+inter_arrival_time[i])
-    arrival_time  = list(map(lambda x: round(x,1) , arrival_time))
-
-
-    service_time = []  # service time of each customer
-    for i in range(number_customer):
-        t= Erlang(K, Mu)
-        t=round(t,1)
-        service_time.append(t)
-    
-    idle = True # flags that indate wether server is busy
-    N = [] #number of customer in system at each time point
-    finished_customer = 0 # counter of finished customer
-    t = 0.0  # start from 0 second
-
-    # run simulation
-    while t <= simulation_time_in_seconds:
-        
-        # check which customer arrives 
-        for k in range(number_customer):
-            if  arrival_time[k] == t:
-                queue.put(k)
-                
-
-         #  if server is in idle and customer leave queue and enter server
-        if not queue.empty() and idle :
-            customer_in_server = queue.get()
-            idle = False
-
-        # if server is busy
-        if not idle:
-            
-            # decrease service time of customer in server
-            if service_time[customer_in_server] >= 0.1:
-                service_time[customer_in_server] = round(service_time[customer_in_server]-0.1,1)  
-            
-            # finished customer departure server 
-            if service_time[customer_in_server] == 0.0:
-                idle = True
-                finished_customer+=1 # count finished customers
-        
-        # number of customer in Queue and Server at each time point
-
-        n = len(list(queue.queue)) + (1 if not idle else 0)
-        N.append(n)
-
-        # add time point to list
-        t = round(t +0.1, 1)
-
-
-    # Expected number of customer in system
-    counter = Counter(N)
-    n=[]
-    p_n= []
-    counter =dict(sorted(counter.items(), key = lambda x:x[0]))
-    for key, val in counter.items():
-        n.append(key)
-        p_n.append(val/len(N))
-    E_N = list(map(lambda x: x[0]*x[1], list(zip(n,p_n))))
-    E_N= round(sum(E_N),2)
-    
-    return E_N
-
-
-# return expected number of customer in M/D/1 queque with different arrival rate
-def EN_M_D_1(Lambda):
-    simulation_time_in_seconds = 100  # simulation time in seconds
+    simulation_time_in_seconds = 200  # simulation time in seconds
     Mu = 6     # service rate (/second)
     rho = Lambda/Mu   # utilization 
     queue = Queue() #  Queue
@@ -522,7 +434,7 @@ def EN_M_D_1(Lambda):
 
     service_time = []  # service time of each customer
     for i in range(number_customer):
-        t= 1/Mu
+        t= Erlang(K, Mu)
         t=round(t,2)
         service_time.append(t)
     
@@ -549,8 +461,8 @@ def EN_M_D_1(Lambda):
         if not idle:
             
             # decrease service time of customer in server
-            
-            service_time[customer_in_server] = round(service_time[customer_in_server]-0.01,2)  
+            if service_time[customer_in_server] >= 0.01:
+                service_time[customer_in_server] = round(service_time[customer_in_server]-0.01,2)  
             
             # finished customer departure server 
             if service_time[customer_in_server] == 0.00:
@@ -587,9 +499,10 @@ def plot_M_Ek_1_M_D_1():
     rho = []
     for Lambda in np.arange(1,6, 0.1):
         Lambda = round(Lambda,1)
+        Rho = Lambda/6
         E_N1.append(EN_M_Ek_1(Lambda))
-        E_N2.append(EN_M_D_1(Lambda))
-        rho.append(Lambda/6)
+        E_N2.append((Rho/(1-Rho))*(1-Rho/2))
+        rho.append(Rho)
         print("simulation at rho {}".format(Lambda))
     
     # plot rho vs E_N
@@ -605,12 +518,12 @@ def plot_M_Ek_1_M_D_1():
     
 
 
-plot_Prob_Uniform()
+#plot_Prob_Uniform()
 
-plot_Pro_Exp_Poisson()
+#plot_Pro_Exp_Poisson()
 
-MM_1_Queue()
+#MM_1_Queue()
 
-M_Ek_1(4)
+#M_Ek_1(4)
 
 plot_M_Ek_1_M_D_1()
