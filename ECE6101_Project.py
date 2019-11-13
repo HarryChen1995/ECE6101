@@ -406,7 +406,7 @@ def M_Ek_1(K):
 
 # return expected number of customer in M/Ek/1 queque with different arrival rate
 def EN_M_Ek_1(Lambda, K=40):
-    simulation_time_in_seconds = 200  # simulation time in seconds
+    simulation_time_in_seconds = 500  # simulation time in seconds
     Mu = 6     # service rate (/second)
     rho = Lambda/Mu   # utilization 
     queue = Queue() #  Queue
@@ -426,22 +426,22 @@ def EN_M_Ek_1(Lambda, K=40):
     for i in range(number_customer):
         
         if i == 0:
-            arrival_time.append(0.00)
+            arrival_time.append(0.0)
         else:
             arrival_time.append(arrival_time[i-1]+inter_arrival_time[i])
-    arrival_time  = list(map(lambda x: round(x,2) , arrival_time))
+    arrival_time  = list(map(lambda x: round(x,1) , arrival_time))
 
 
     service_time = []  # service time of each customer
     for i in range(number_customer):
         t= Erlang(K, Mu)
-        t=round(t,2)
+        t=round(t,1)
         service_time.append(t)
     
     idle = True # flags that indate wether server is busy
     N = [] #number of customer in system at each time point
     finished_customer = 0 # counter of finished customer
-    t = 0.00  # start from 0 second
+    t = 0.0  # start from 0 second
 
     # run simulation
     while t <= simulation_time_in_seconds:
@@ -461,11 +461,11 @@ def EN_M_Ek_1(Lambda, K=40):
         if not idle:
             
             # decrease service time of customer in server
-            if service_time[customer_in_server] >= 0.01:
-                service_time[customer_in_server] = round(service_time[customer_in_server]-0.01,2)  
+            if service_time[customer_in_server] >= 0.1:
+                service_time[customer_in_server] = round(service_time[customer_in_server]-0.1,1)  
             
             # finished customer departure server 
-            if service_time[customer_in_server] == 0.00:
+            if service_time[customer_in_server] == 0.0:
                 idle = True
                 finished_customer+=1 # count finished customers
         
@@ -475,7 +475,7 @@ def EN_M_Ek_1(Lambda, K=40):
         N.append(n)
 
         # add time point to list
-        t = round(t +0.01, 2)
+        t = round(t +0.1, 1)
 
 
     # Expected number of customer in system
@@ -518,12 +518,12 @@ def plot_M_Ek_1_M_D_1():
     
 
 
-#plot_Prob_Uniform()
+plot_Prob_Uniform()
 
-#plot_Pro_Exp_Poisson()
+plot_Pro_Exp_Poisson()
 
-#MM_1_Queue()
+MM_1_Queue()
 
-#M_Ek_1(4)
+M_Ek_1(4)
 
 plot_M_Ek_1_M_D_1()
